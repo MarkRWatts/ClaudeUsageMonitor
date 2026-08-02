@@ -2,6 +2,8 @@
 
 A native macOS menu bar app that shows your Claude account's usage limits at a glance.
 
+![Screenshot](screenshot.png)
+
 - Menu bar icon: a hollow circle that fills white, clockwise from 12 o'clock, as your current
   5-hour session usage climbs from 0% to 100%.
 - Click the icon for a breakdown of all three limits: the 5-hour session limit, the weekly
