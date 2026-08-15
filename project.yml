@@ -37,3 +37,14 @@ targets:
         GENERATE_INFOPLIST_FILE: false
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_HARDENED_RUNTIME: true
+    postbuildScripts:
+      - name: Stamp Git Revision into CFBundleVersion
+        basedOnDependencyAnalysis: false
+        script: |
+          set -e
+          GIT_HASH=$(git -C "${SRCROOT}" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+          if [ "${GIT_HASH}" != "unknown" ] && ! git -C "${SRCROOT}" diff --quiet HEAD -- 2>/dev/null; then
+            GIT_HASH="${GIT_HASH}-dirty"
+          fi
+          PLIST="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${GIT_HASH}" "${PLIST}"
