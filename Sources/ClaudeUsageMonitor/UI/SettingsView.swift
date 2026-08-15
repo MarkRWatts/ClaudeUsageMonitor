@@ -36,11 +36,11 @@ struct SettingsView: View {
                     UsageBarRow(
                         title: "5-Hour Session",
                         percent: store.fiveHourPercent,
-                        subtitle: resetsSubtitle(store.fiveHourResetsAt))
+                        subtitle: UsageFormatting.resetsSubtitle(store.fiveHourResetsAt))
                     UsageBarRow(
                         title: "Weekly (All Models)",
                         percent: store.sevenDayPercent,
-                        subtitle: resetsSubtitle(store.sevenDayResetsAt))
+                        subtitle: UsageFormatting.resetsSubtitle(store.sevenDayResetsAt))
                     UsageBarRow(
                         title: "Usage Credits",
                         percent: store.spendPercent,
@@ -89,13 +89,6 @@ struct SettingsView: View {
         let shortVersion = info?["CFBundleShortVersionString"] as? String ?? "—"
         let build = info?["CFBundleVersion"] as? String ?? "—"
         return "Version \(shortVersion) (\(build))"
-    }
-
-    private func resetsSubtitle(_ date: Date?) -> String {
-        guard let date else { return "—" }
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return "Resets " + formatter.localizedString(for: date, relativeTo: Date())
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
