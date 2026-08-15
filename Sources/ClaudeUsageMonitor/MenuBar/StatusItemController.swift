@@ -50,10 +50,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         localClickMonitor = NSEvent.addLocalMonitorForEvents(
             matching: [.leftMouseDown, .rightMouseDown]
         ) { [weak self] event in
+            guard let self else { return event }
             // Ignore clicks on the status item's own button — togglePopover's
             // target-action already handles closing it, and closing here first
-            // would make the button's action immediately reopen it.
-            if let self, event.window !== self.statusItem.button?.window {
+            // would make the button's action immediately reopen it. Also ignore
+            // clicks inside the popover's own window, otherwise closing it here
+            // would swallow the click before SwiftUI controls (e.g. the settings
+            // gear) get to handle it.
+            let popoverWindow = self.popover.contentViewController?.view.window
+            if event.window !== self.statusItem.button?.window && event.window !== popoverWindow {
                 self.popover.performClose(nil)
             }
             return event
