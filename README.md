@@ -63,10 +63,11 @@ on every rebuild).
 Open `ClaudeUsageMonitor.xcodeproj` in Xcode, select the `ClaudeUsageMonitorIOS` scheme, and
 run on a Simulator or device. The iOS app and widget extension share an App Group
 (`group.com.markwatts.ClaudeUsageMonitor`) so the widget can read the credential the app saves
-— this needs a signing team selected for both the `ClaudeUsageMonitorIOS` and `ClaudeUsageWidget`
-targets in Signing & Capabilities (a free personal team is enough; App Groups work fine on
-Simulator without a paid account). `xcodegen generate` leaves `DEVELOPMENT_TEAM` blank
-intentionally, so this is a one-time manual step per machine, same as the mac target.
+— this needs a signing team on both the `ClaudeUsageMonitorIOS` and `ClaudeUsageWidget` targets
+(a free personal team is enough; App Groups work fine on Simulator without a paid account).
+`project.yml`'s `DEVELOPMENT_TEAM` is set to the maintainer's team ID (`2Y2TMF4L4P`); if you're
+building this on your own Apple ID, change it there (or override it per-target in Xcode's
+Signing & Capabilities) before running `xcodegen generate`.
 
 To add the widget: long-press the Home Screen, tap the `+` in the top corner, and search for
 "Claude Usage". Lock Screen widgets are added from the Lock Screen customization UI.

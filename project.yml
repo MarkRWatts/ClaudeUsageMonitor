@@ -10,7 +10,7 @@ settings:
     SWIFT_VERSION: 5.0
     MACOSX_DEPLOYMENT_TARGET: "13.0"
     CODE_SIGN_STYLE: Automatic
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: 2Y2TMF4L4P
 
 packages:
   ClaudeUsageKit:
