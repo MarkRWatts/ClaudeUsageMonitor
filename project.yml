@@ -75,6 +75,7 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        UIRequiresFullScreen: true
         UIBackgroundModes:
           - fetch
         BGTaskSchedulerPermittedIdentifiers:

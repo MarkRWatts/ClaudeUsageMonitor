@@ -7,18 +7,21 @@ struct ClaudeUsageWidgetEntryView: View {
     let entry: UsageEntry
 
     var body: some View {
-        switch family {
-        case .systemMedium:
-            MediumUsageView(entry: entry)
-        case .accessoryCircular:
-            CircularUsageView(entry: entry)
-        case .accessoryInline:
-            Text(inlineText)
-        case .accessoryRectangular:
-            RectangularUsageView(entry: entry)
-        default:
-            SmallUsageView(entry: entry)
+        Group {
+            switch family {
+            case .systemMedium:
+                MediumUsageView(entry: entry)
+            case .accessoryCircular:
+                CircularUsageView(entry: entry)
+            case .accessoryInline:
+                Text(inlineText)
+            case .accessoryRectangular:
+                RectangularUsageView(entry: entry)
+            default:
+                SmallUsageView(entry: entry)
+            }
         }
+        .widgetBackground()
     }
 
     private var inlineText: String {
@@ -60,7 +63,6 @@ private struct SmallUsageView: View {
                 .lineLimit(2)
         }
         .padding()
-        .widgetBackground()
     }
 }
 
@@ -96,7 +98,6 @@ private struct MediumUsageView: View {
             }
         }
         .padding()
-        .widgetBackground()
     }
 }
 
