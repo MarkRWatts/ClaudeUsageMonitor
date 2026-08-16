@@ -9,6 +9,15 @@ struct UsagePopoverView: View {
             HStack {
                 Text("Claude Usage")
                     .font(.system(size: 13, weight: .bold))
+                if let planName = store.planName {
+                    Text(planName)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.secondary.opacity(0.15))
+                        .clipShape(Capsule())
+                }
                 Spacer()
                 Button(action: onOpenSettings) {
                     Image(systemName: "gearshape")

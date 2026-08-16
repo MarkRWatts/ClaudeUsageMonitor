@@ -10,6 +10,7 @@ final class UsageStore: ObservableObject {
     @Published var spendUsedFormatted: String = "—"
     @Published var spendLimitFormatted: String = "—"
     @Published var lastUpdated: Date?
+    @Published var planName: String?
 
     func apply(_ response: UsageResponse) {
         fiveHourPercent = Double(response.fiveHour?.utilization ?? 0)
@@ -31,5 +32,6 @@ final class UsageStore: ObservableObject {
         spendUsedFormatted = "—"
         spendLimitFormatted = "—"
         lastUpdated = nil
+        planName = nil
     }
 }

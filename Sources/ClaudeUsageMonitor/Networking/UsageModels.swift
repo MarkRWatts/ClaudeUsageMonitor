@@ -3,6 +3,42 @@ import Foundation
 struct Organization: Decodable {
     let uuid: String
     let name: String
+    let capabilities: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case uuid, name, capabilities
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        uuid = try container.decode(String.self, forKey: .uuid)
+        name = try container.decode(String.self, forKey: .name)
+        capabilities = try container.decodeIfPresent([String].self, forKey: .capabilities) ?? []
+    }
+
+    /// The API exposes plan as an opaque `capabilities` flag (e.g. "claude_pro"), not a
+    /// human-readable field — this mapping is reverse-engineered and may not cover every
+    /// plan variant (e.g. Max tier suffixes).
+    private static let planCapabilityNames: [String: String] = [
+        "claude_free": "Free",
+        "claude_pro": "Pro",
+        "claude_max": "Max",
+        "claude_team": "Team",
+        "claude_enterprise": "Enterprise",
+    ]
+
+    var planName: String? {
+        for capability in capabilities {
+            if let name = Self.planCapabilityNames[capability] {
+                return name
+            }
+            if capability.hasPrefix("claude_max_") {
+                let suffix = capability.dropFirst("claude_max_".count)
+                return "Max \(suffix)"
+            }
+        }
+        return nil
+    }
 }
 
 struct MoneyAmount: Decodable {
