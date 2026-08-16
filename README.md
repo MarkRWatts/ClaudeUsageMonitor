@@ -1,9 +1,11 @@
 # Claude Usage Monitor
 
-A native macOS menu bar app that shows your Claude account's usage limits at a glance.
+A native macOS menu bar app, iOS app, and iOS widget that show your Claude account's usage
+limits at a glance.
 
 ![Screenshot](screenshot.png)
 
+**macOS**
 - Menu bar icon: a hollow circle that fills white, clockwise from 12 o'clock, as your current
   5-hour session usage climbs from 0% to 100%.
 - Click the icon for a breakdown of all three limits: the 5-hour session limit, the weekly
@@ -11,15 +13,25 @@ A native macOS menu bar app that shows your Claude account's usage limits at a g
 - A gear icon in that popover opens Settings: account details, current limits, a
   Launch at Login toggle, Sign Out, and Quit.
 
+**iOS**
+- The app mirrors the same breakdown (5-hour session, weekly, usage credits) with pull-to-
+  refresh, and a Settings screen for account details and Sign Out.
+- A Home Screen widget (small/medium) and Lock Screen widgets (circular/inline/rectangular)
+  show the same numbers without opening the app.
+
 ## How it works
 
-There's no public Anthropic API for personal account usage stats. This app authenticates the
+There's no public Anthropic API for personal account usage stats. Both apps authenticate the
 same way the claude.ai web app does (an embedded login window captures your session cookie,
-stored in macOS Keychain) and calls the same internal endpoint claude.ai's own frontend uses:
+stored in Keychain) and call the same internal endpoint claude.ai's own frontend uses:
 `GET https://claude.ai/api/organizations/{organization_id}/usage`.
 
 That endpoint is undocumented and unversioned — it could change or break without notice. This
 is a personal utility built around it, not a supported integration.
+
+The networking, models, credential storage, and login logic live in a local Swift Package,
+`Packages/ClaudeUsageKit`, shared by all three targets (mac app, iOS app, widget extension) —
+see [Project layout](#project-layout) below.
 
 ## Building
 
@@ -28,6 +40,11 @@ Requires Xcode (full IDE, not just Command Line Tools) and [XcodeGen](https://gi
 ```bash
 brew install xcodegen
 xcodegen generate
+```
+
+**macOS app:**
+
+```bash
 xcodebuild -project ClaudeUsageMonitor.xcodeproj -scheme ClaudeUsageMonitor -configuration Release build
 ```
 
@@ -35,9 +52,28 @@ The built `.app` will be under Xcode's DerivedData; copy it to `/Applications` f
 permanent install (also avoids the ad-hoc code-signature changing — and Keychain re-prompting —
 on every rebuild).
 
+**iOS app + widget:**
+
+Open `ClaudeUsageMonitor.xcodeproj` in Xcode, select the `ClaudeUsageMonitorIOS` scheme, and
+run on a Simulator or device. The iOS app and widget extension share an App Group
+(`group.com.markwatts.ClaudeUsageMonitor`) so the widget can read the credential the app saves
+— this needs a signing team selected for both the `ClaudeUsageMonitorIOS` and `ClaudeUsageWidget`
+targets in Signing & Capabilities (a free personal team is enough; App Groups work fine on
+Simulator without a paid account). `xcodegen generate` leaves `DEVELOPMENT_TEAM` blank
+intentionally, so this is a one-time manual step per machine, same as the mac target.
+
+To add the widget: long-press the Home Screen, tap the `+` in the top corner, and search for
+"Claude Usage". Lock Screen widgets are added from the Lock Screen customization UI.
+
 ## Project layout
 
-- `Auth/` — login window (`WKWebView`) and Keychain-backed credential storage.
-- `Networking/` — the usage API client and response models.
-- `MenuBar/` — the custom-drawn ring icon and `NSStatusItem` controller.
-- `UI/` — SwiftUI views for the popover and settings window.
+- `Packages/ClaudeUsageKit/` — shared Swift Package: usage API client and response models,
+  Keychain-backed credential storage (with optional App Group access group for cross-process
+  sharing), the login cookie → credential logic, the `UsageStore` observable state, formatting
+  helpers, and the widget's App-Group-backed usage snapshot cache.
+- `Sources/ClaudeUsageMonitor/` — macOS app: login window (`WKWebView`), the custom-drawn ring
+  icon and `NSStatusItem` controller, and SwiftUI views for the popover and settings window.
+- `Sources/ClaudeUsageMonitorIOS/` — iOS app: login sheet (`WKWebView`), the usage dashboard
+  and settings screens, and `BGAppRefreshTask` scheduling.
+- `Sources/ClaudeUsageWidget/` — the WidgetKit extension: `TimelineProvider` and the Home
+  Screen / Lock Screen widget views.

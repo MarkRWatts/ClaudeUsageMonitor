@@ -1,4 +1,5 @@
 import AppKit
+import ClaudeUsageKit
 import WebKit
 
 final class LoginWindowController: NSObject, WKNavigationDelegate {
@@ -55,23 +56,10 @@ final class LoginWindowController: NSObject, WKNavigationDelegate {
 
         webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [weak self] cookies in
             guard let self else { return }
-            let claudeCookies = cookies.filter { $0.domain.hasSuffix("claude.ai") }
-            guard !claudeCookies.isEmpty else {
-                self.isChecking = false
-                return
-            }
-            let cookieHeader = claudeCookies.map { "\($0.name)=\($0.value)" }.joined(
-                separator: "; ")
 
             Task {
                 do {
-                    let organization = try await UsageAPIClient.fetchOrganization(
-                        cookieHeader: cookieHeader)
-                    let credential = StoredCredential(
-                        cookieHeader: cookieHeader,
-                        organizationId: organization.uuid,
-                        organizationName: organization.name,
-                        loggedInAt: Date())
+                    let credential = try await AuthSessionBuilder.credential(fromCookies: cookies)
                     CredentialStore.save(credential)
                     await MainActor.run {
                         self.pollTimer?.invalidate()

@@ -1,4 +1,5 @@
 import AppKit
+import ClaudeUsageKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let store = UsageStore()

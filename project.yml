@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.markwatts
   deploymentTarget:
     macOS: "13.0"
+    iOS: "16.0"
 
 settings:
   base:
@@ -11,19 +12,25 @@ settings:
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: ""
 
+packages:
+  ClaudeUsageKit:
+    path: Packages/ClaudeUsageKit
+
 targets:
   ClaudeUsageMonitor:
     type: application
     platform: macOS
     sources:
       - path: Sources/ClaudeUsageMonitor
+    dependencies:
+      - package: ClaudeUsageKit
     info:
       path: Sources/ClaudeUsageMonitor/Info.plist
       properties:
         LSUIElement: true
         CFBundleName: ClaudeUsageMonitor
         CFBundleDisplayName: Claude Usage Monitor
-        CFBundleShortVersionString: "1.0"
+        CFBundleShortVersionString: "2.0"
         CFBundleVersion: "1"
         NSHumanReadableCopyright: ""
     entitlements:
@@ -48,3 +55,65 @@ targets:
           fi
           PLIST="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}"
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${GIT_HASH}" "${PLIST}"
+
+  ClaudeUsageMonitorIOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/ClaudeUsageMonitorIOS
+    dependencies:
+      - package: ClaudeUsageKit
+      - target: ClaudeUsageWidget
+        embed: true
+    info:
+      path: Sources/ClaudeUsageMonitorIOS/Info.plist
+      properties:
+        CFBundleDisplayName: Claude Usage
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes:
+          - fetch
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.markwatts.ClaudeUsageMonitor.ios.refresh
+        NSHumanReadableCopyright: ""
+    entitlements:
+      path: Sources/ClaudeUsageMonitorIOS/ClaudeUsageMonitorIOS.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.markwatts.ClaudeUsageMonitor
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.markwatts.ClaudeUsageMonitor.ios
+        GENERATE_INFOPLIST_FILE: false
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+
+  ClaudeUsageWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Sources/ClaudeUsageWidget
+    dependencies:
+      - package: ClaudeUsageKit
+    info:
+      path: Sources/ClaudeUsageWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Claude Usage
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Sources/ClaudeUsageWidget/ClaudeUsageWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.markwatts.ClaudeUsageMonitor
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.markwatts.ClaudeUsageMonitor.ios.widget
+        GENERATE_INFOPLIST_FILE: false
+        TARGETED_DEVICE_FAMILY: "1,2"

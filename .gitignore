@@ -3,3 +3,5 @@ xcuserdata/
 *.xcuserstate
 ClaudeUsageMonitor.xcodeproj/
 DerivedData/
+Packages/*/.build/
+Packages/*/.swiftpm/

@@ -1,3 +1,4 @@
+import ClaudeUsageKit
 import ServiceManagement
 import SwiftUI
 

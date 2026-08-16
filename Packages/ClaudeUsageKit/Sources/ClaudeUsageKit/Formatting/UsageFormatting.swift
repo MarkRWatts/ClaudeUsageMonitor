@@ -1,7 +1,7 @@
 import Foundation
 
-enum UsageFormatting {
-    static func resetsSubtitle(_ date: Date?) -> String {
+public enum UsageFormatting {
+    public static func resetsSubtitle(_ date: Date?) -> String {
         guard let date else { return "—" }
         let formatter = DateFormatter()
         let isToday = Calendar.current.isDateInToday(date)

@@ -1,12 +1,12 @@
 import Foundation
 
-enum UsageAPIError: Error {
+public enum UsageAPIError: Error {
     case unauthorized
     case unexpectedStatus(Int)
     case noOrganization
 }
 
-enum UsageAPIClient {
+public enum UsageAPIClient {
     private static let baseURL = URL(string: "https://claude.ai/api")!
 
     private static var jsonDecoder: JSONDecoder = {
@@ -53,14 +53,14 @@ enum UsageAPIClient {
         return data
     }
 
-    static func fetchOrganization(cookieHeader: String) async throws -> Organization {
+    public static func fetchOrganization(cookieHeader: String) async throws -> Organization {
         let data = try await send(request(path: "organizations", cookieHeader: cookieHeader))
         let organizations = try jsonDecoder.decode([Organization].self, from: data)
         guard let first = organizations.first else { throw UsageAPIError.noOrganization }
         return first
     }
 
-    static func fetchUsage(_ credential: StoredCredential) async throws -> UsageResponse {
+    public static func fetchUsage(_ credential: StoredCredential) async throws -> UsageResponse {
         let data = try await send(
             request(
                 path: "organizations/\(credential.organizationId)/usage",

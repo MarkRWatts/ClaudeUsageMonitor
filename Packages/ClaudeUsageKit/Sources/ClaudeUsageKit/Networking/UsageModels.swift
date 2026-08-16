@@ -1,15 +1,15 @@
 import Foundation
 
-struct Organization: Decodable {
-    let uuid: String
-    let name: String
-    let capabilities: [String]
+public struct Organization: Codable {
+    public let uuid: String
+    public let name: String
+    public let capabilities: [String]
 
     enum CodingKeys: String, CodingKey {
         case uuid, name, capabilities
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         uuid = try container.decode(String.self, forKey: .uuid)
         name = try container.decode(String.self, forKey: .name)
@@ -27,7 +27,7 @@ struct Organization: Decodable {
         "claude_enterprise": "Enterprise",
     ]
 
-    var planName: String? {
+    public var planName: String? {
         for capability in capabilities {
             if let name = Self.planCapabilityNames[capability] {
                 return name
@@ -41,10 +41,10 @@ struct Organization: Decodable {
     }
 }
 
-struct MoneyAmount: Decodable {
-    let amountMinor: Int
-    let currency: String
-    let exponent: Int
+public struct MoneyAmount: Codable {
+    public let amountMinor: Int
+    public let currency: String
+    public let exponent: Int
 
     enum CodingKeys: String, CodingKey {
         case amountMinor = "amount_minor"
@@ -53,7 +53,7 @@ struct MoneyAmount: Decodable {
     }
 
     /// e.g. 2000 minor units / 10^2 exponent, "GBP" -> "£20.00"
-    var formatted: String {
+    public var formatted: String {
         let value = Double(amountMinor) / pow(10, Double(exponent))
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -62,9 +62,9 @@ struct MoneyAmount: Decodable {
     }
 }
 
-struct FiveHourUsage: Decodable {
-    let utilization: Double?
-    let resetsAt: Date?
+public struct FiveHourUsage: Codable {
+    public let utilization: Double?
+    public let resetsAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case utilization
@@ -72,9 +72,9 @@ struct FiveHourUsage: Decodable {
     }
 }
 
-struct SevenDayUsage: Decodable {
-    let utilization: Double?
-    let resetsAt: Date?
+public struct SevenDayUsage: Codable {
+    public let utilization: Double?
+    public let resetsAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case utilization
@@ -82,16 +82,16 @@ struct SevenDayUsage: Decodable {
     }
 }
 
-struct SpendUsage: Decodable {
-    let percent: Double?
-    let used: MoneyAmount?
-    let limit: MoneyAmount?
+public struct SpendUsage: Codable {
+    public let percent: Double?
+    public let used: MoneyAmount?
+    public let limit: MoneyAmount?
 }
 
-struct UsageResponse: Decodable {
-    let fiveHour: FiveHourUsage?
-    let sevenDay: SevenDayUsage?
-    let spend: SpendUsage?
+public struct UsageResponse: Codable {
+    public let fiveHour: FiveHourUsage?
+    public let sevenDay: SevenDayUsage?
+    public let spend: SpendUsage?
 
     enum CodingKeys: String, CodingKey {
         case fiveHour = "five_hour"

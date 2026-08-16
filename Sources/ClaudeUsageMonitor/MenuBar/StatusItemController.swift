@@ -1,4 +1,5 @@
 import AppKit
+import ClaudeUsageKit
 import Combine
 import SwiftUI
 

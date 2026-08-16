@@ -1,18 +1,20 @@
 import Combine
 import Foundation
 
-final class UsageStore: ObservableObject {
-    @Published var fiveHourPercent: Double = 0
-    @Published var fiveHourResetsAt: Date?
-    @Published var sevenDayPercent: Double = 0
-    @Published var sevenDayResetsAt: Date?
-    @Published var spendPercent: Double = 0
-    @Published var spendUsedFormatted: String = "—"
-    @Published var spendLimitFormatted: String = "—"
-    @Published var lastUpdated: Date?
-    @Published var planName: String?
+public final class UsageStore: ObservableObject {
+    @Published public var fiveHourPercent: Double = 0
+    @Published public var fiveHourResetsAt: Date?
+    @Published public var sevenDayPercent: Double = 0
+    @Published public var sevenDayResetsAt: Date?
+    @Published public var spendPercent: Double = 0
+    @Published public var spendUsedFormatted: String = "—"
+    @Published public var spendLimitFormatted: String = "—"
+    @Published public var lastUpdated: Date?
+    @Published public var planName: String?
 
-    func apply(_ response: UsageResponse) {
+    public init() {}
+
+    public func apply(_ response: UsageResponse) {
         fiveHourPercent = Double(response.fiveHour?.utilization ?? 0)
         fiveHourResetsAt = response.fiveHour?.resetsAt
         sevenDayPercent = Double(response.sevenDay?.utilization ?? 0)
@@ -23,7 +25,7 @@ final class UsageStore: ObservableObject {
         lastUpdated = Date()
     }
 
-    func reset() {
+    public func reset() {
         fiveHourPercent = 0
         fiveHourResetsAt = nil
         sevenDayPercent = 0

@@ -1,3 +1,4 @@
+import ClaudeUsageKit
 import SwiftUI
 
 struct UsagePopoverView: View {
