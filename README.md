@@ -19,6 +19,12 @@ limits at a glance.
 - A Home Screen widget (small/medium) and Lock Screen widgets (circular/inline/rectangular)
   show the same numbers without opening the app.
 
+<p align="center">
+  <img src="screenshot-ios.png" width="30%" alt="iOS app dashboard" />
+  <img src="screenshot-ios-widgets.png" width="30%" alt="iOS Home Screen widgets" />
+  <img src="screenshot-ios-lockscreen.png" width="30%" alt="iOS Lock Screen widgets" />
+</p>
+
 ## How it works
 
 There's no public Anthropic API for personal account usage stats. Both apps authenticate the
