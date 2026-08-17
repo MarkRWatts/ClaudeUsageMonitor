@@ -5,7 +5,9 @@ enum MenuBarDisplayStyle: String, CaseIterable, Identifiable {
     case ring
     case ringAndPercent
     case percentOnly
+    /// Existing rawValue kept as-is (it's already persisted) — this is the ring-included variant.
     case percentStackedOverReset
+    case percentStackedOverResetNoRing
 
     var id: String { rawValue }
 
@@ -14,7 +16,8 @@ enum MenuBarDisplayStyle: String, CaseIterable, Identifiable {
         case .ring: return "Ring"
         case .ringAndPercent: return "Ring + Percentage"
         case .percentOnly: return "Percentage"
-        case .percentStackedOverReset: return "Percentage + Reset Time"
+        case .percentStackedOverReset: return "Ring + Percentage + Reset Time"
+        case .percentStackedOverResetNoRing: return "Percentage + Reset Time"
         }
     }
 

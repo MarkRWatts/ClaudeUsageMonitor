@@ -7,7 +7,7 @@ import AppKit
 enum StackedUsageRenderer {
     private static let ringSize: CGFloat = 15
     private static let ringLineWidth: CGFloat = 2.4
-    private static let height: CGFloat = 18
+    private static let verticalPadding: CGFloat = 2
     private static let topFont = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .semibold)
     private static let bottomFont = NSFont.monospacedDigitSystemFont(ofSize: 8, weight: .regular)
     private static let lineGap: CGFloat = 0
@@ -33,6 +33,12 @@ enum StackedUsageRenderer {
         let ringWidth = showRing ? ringSize + ringToTextGap : 0
         let width = 1 + ringWidth + textWidth + 1
 
+        // Size the canvas to the text actually measured, not a guessed constant — a fixed
+        // height shorter than the real two-line block clips the bottom line against the
+        // image's own bounds instead of just leaving less padding.
+        let blockHeight = topSize.height + lineGap + bottomSize.height
+        let height = max(ringSize, blockHeight) + verticalPadding
+
         let image = NSImage(size: NSSize(width: width, height: height), flipped: false) { rect in
             if showRing {
                 let ringRect = NSRect(x: 1, y: (height - ringSize) / 2, width: ringSize, height: ringSize)
@@ -42,7 +48,6 @@ enum StackedUsageRenderer {
             // Non-flipped context: a point passed to `draw(at:)` is the bottom-left of that
             // line's bounding box, so stack bottom-up — place the bottom line first, then the
             // top line directly above it — and center the two-line block in `rect`.
-            let blockHeight = topSize.height + lineGap + bottomSize.height
             let blockBottom = (rect.height - blockHeight) / 2
             let textX = 1 + ringWidth
 

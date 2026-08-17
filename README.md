@@ -7,11 +7,13 @@ limits at a glance.
 
 **macOS**
 - Menu bar icon: a hollow circle that fills white, clockwise from 12 o'clock, as your current
-  5-hour session usage climbs from 0% to 100%.
+  5-hour session usage climbs from 0% to 100%. Settings lets you switch the display between
+  the ring alone, ring + percentage, percentage alone, or percentage stacked over the 5-hour
+  reset time (with or without the ring).
 - Click the icon for a breakdown of all three limits: the 5-hour session limit, the weekly
   all-model limit, and usage credits.
-- A gear icon in that popover opens Settings: account details, current limits, a
-  Launch at Login toggle, Sign Out, and Quit.
+- A gear icon in that popover opens Settings: account details, current limits, the menu bar
+  display style, a Launch at Login toggle, Sign Out, and Quit.
 
 **iOS**
 - The app mirrors the same breakdown (5-hour session, weekly, usage credits) with pull-to-

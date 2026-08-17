@@ -30,7 +30,7 @@ targets:
         LSUIElement: true
         CFBundleName: ClaudeUsageMonitor
         CFBundleDisplayName: Claude Usage Monitor
-        CFBundleShortVersionString: "2.0"
+        CFBundleShortVersionString: "2.1"
         CFBundleVersion: "1"
         NSHumanReadableCopyright: ""
     entitlements:
@@ -69,7 +69,7 @@ targets:
       path: Sources/ClaudeUsageMonitorIOS/Info.plist
       properties:
         CFBundleDisplayName: Claude Usage
-        CFBundleShortVersionString: "1.0"
+        CFBundleShortVersionString: "1.1"
         CFBundleVersion: "1"
         LSRequiresIPhoneOS: true
         UILaunchScreen: {}
@@ -104,7 +104,7 @@ targets:
       path: Sources/ClaudeUsageWidget/Info.plist
       properties:
         CFBundleDisplayName: Claude Usage
-        CFBundleShortVersionString: "1.0"
+        CFBundleShortVersionString: "1.1"
         CFBundleVersion: "1"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension

@@ -74,6 +74,10 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             button.image = StackedUsageRenderer.image(
                 percent: currentPercent, resetsAt: currentResetsAt, showRing: true)
             button.attributedTitle = NSAttributedString(string: "")
+        case .percentStackedOverResetNoRing:
+            button.image = StackedUsageRenderer.image(
+                percent: currentPercent, resetsAt: currentResetsAt, showRing: false)
+            button.attributedTitle = NSAttributedString(string: "")
         }
     }
 
