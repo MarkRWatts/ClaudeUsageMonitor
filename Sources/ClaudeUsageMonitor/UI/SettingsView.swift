@@ -13,6 +13,7 @@ struct SettingsView: View {
 
     @State private var launchAtLogin: Bool = SMAppService.mainApp.status == .enabled
     @State private var launchAtLoginError: String?
+    @AppStorage(MenuBarDisplayStyle.defaultsKey) private var menuBarDisplayStyle = MenuBarDisplayStyle.ringAndPercent
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -47,6 +48,16 @@ struct SettingsView: View {
                         percent: store.spendPercent,
                         subtitle: "\(store.spendUsedFormatted) of \(store.spendLimitFormatted)")
                 }
+                .padding(.vertical, 4)
+            }
+
+            GroupBox("Menu Bar") {
+                Picker("Display", selection: $menuBarDisplayStyle) {
+                    ForEach(MenuBarDisplayStyle.allCases) { style in
+                        Text(style.label).tag(style)
+                    }
+                }
+                .labelsHidden()
                 .padding(.vertical, 4)
             }
 

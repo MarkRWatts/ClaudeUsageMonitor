@@ -4,9 +4,12 @@ import Combine
 import SwiftUI
 
 final class StatusItemController: NSObject, NSPopoverDelegate {
-    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let popover = NSPopover()
     private var cancellable: AnyCancellable?
+    private var defaultsObserver: NSObjectProtocol?
+    private var currentPercent: Double = 0
+    private var currentResetsAt: Date?
     private let onOpen: () -> Void
     private let onClose: () -> Void
     private var localClickMonitor: Any?
@@ -21,18 +24,56 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         super.init()
 
         if let button = statusItem.button {
-            button.image = UsageRingRenderer.image(percent: 0)
+            button.imagePosition = .imageLeft
             button.target = self
             button.action = #selector(togglePopover)
         }
+        updateButton()
 
         popover.behavior = .transient
         popover.delegate = self
         popover.contentViewController = NSHostingController(
             rootView: UsagePopoverView(store: store, onOpenSettings: onOpenSettings))
 
-        cancellable = store.$fiveHourPercent.sink { [weak self] percent in
-            self?.statusItem.button?.image = UsageRingRenderer.image(percent: percent)
+        cancellable = Publishers.CombineLatest(store.$fiveHourPercent, store.$fiveHourResetsAt)
+            .sink { [weak self] percent, resetsAt in
+                self?.currentPercent = percent
+                self?.currentResetsAt = resetsAt
+                self?.updateButton()
+            }
+
+        // SettingsView writes the display style via `@AppStorage`; there's no SwiftUI binding
+        // here in AppKit-land, so just re-render on any defaults change (cheap) rather than
+        // wiring a dedicated notification for one key.
+        defaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.updateButton()
+        }
+    }
+
+    deinit {
+        if let defaultsObserver {
+            NotificationCenter.default.removeObserver(defaultsObserver)
+        }
+    }
+
+    private func updateButton() {
+        guard let button = statusItem.button else { return }
+        switch MenuBarDisplayStyle.current {
+        case .ring:
+            button.image = UsageRingRenderer.image(percent: currentPercent)
+            button.attributedTitle = NSAttributedString(string: "")
+        case .ringAndPercent:
+            button.image = UsageRingRenderer.image(percent: currentPercent)
+            button.attributedTitle = NSAttributedString(string: "\(Int(currentPercent.rounded()))%")
+        case .percentOnly:
+            button.image = nil
+            button.attributedTitle = NSAttributedString(string: "\(Int(currentPercent.rounded()))%")
+        case .percentStackedOverReset:
+            button.image = StackedUsageRenderer.image(
+                percent: currentPercent, resetsAt: currentResetsAt, showRing: true)
+            button.attributedTitle = NSAttributedString(string: "")
         }
     }
 

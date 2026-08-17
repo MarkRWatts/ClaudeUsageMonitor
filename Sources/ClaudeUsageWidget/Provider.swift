@@ -18,10 +18,27 @@ struct Provider: TimelineProvider {
             return
         }
         Task {
-            if let cached = UsageSnapshotCache.load() {
-                completion(.from(response: cached.response, planName: cached.planName, date: Date(), isStale: false))
-            } else {
-                completion(.placeholder)
+            // Always-On Display renders from whatever this returns, and does so on its own
+            // infrequent schedule decoupled from `getTimeline`'s reloads — so a cache-only
+            // read here can freeze the dimmed lock screen on stale data for a long time even
+            // while the awake render (driven by `getTimeline`) is up to date. Attempt a live
+            // fetch first (bounded by `UsageAPIClient`'s 10s timeout) so whenever this rarely
+            // does get called, it has the freshest data available.
+            guard let credential = CredentialStore.load() else {
+                completion(.signedOut)
+                return
+            }
+            do {
+                async let usageTask = UsageAPIClient.fetchUsage(credential)
+                async let organizationTask = try? UsageAPIClient.fetchOrganization(
+                    cookieHeader: credential.cookieHeader)
+                let usage = try await usageTask
+                let planName = await organizationTask?.planName
+                UsageSnapshotCache.save(usage, planName: planName)
+                completion(.from(response: usage, planName: planName, date: Date(), isStale: false))
+            } catch {
+                DebugLog.write("Widget Provider.getSnapshot failed: \(error)")
+                completion(placeholder(in: context))
             }
         }
     }
