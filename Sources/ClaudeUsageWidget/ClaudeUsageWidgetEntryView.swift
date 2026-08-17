@@ -11,12 +11,19 @@ struct ClaudeUsageWidgetEntryView: View {
             switch family {
             case .systemMedium:
                 MediumUsageView(entry: entry)
+            // Lock Screen families are redacted by the system (generic bars/empty gauge) while
+            // the device is locked and asleep/AOD-dimmed, since it can't know the content isn't
+            // sensitive. `.unredacted()` opts back in to showing the real numbers there — a
+            // usage percentage isn't worth hiding.
             case .accessoryCircular:
                 CircularUsageView(entry: entry)
+                    .unredacted()
             case .accessoryInline:
                 Text(inlineText)
+                    .unredacted()
             case .accessoryRectangular:
                 RectangularUsageView(entry: entry)
+                    .unredacted()
             default:
                 SmallUsageView(entry: entry)
             }

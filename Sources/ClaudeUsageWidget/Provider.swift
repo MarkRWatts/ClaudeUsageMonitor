@@ -34,10 +34,11 @@ struct Provider: TimelineProvider {
             }
 
             do {
-                let usage = try await UsageAPIClient.fetchUsage(credential)
-                let organization = try? await UsageAPIClient.fetchOrganization(
+                async let usageTask = UsageAPIClient.fetchUsage(credential)
+                async let organizationTask = try? UsageAPIClient.fetchOrganization(
                     cookieHeader: credential.cookieHeader)
-                let planName = organization?.planName
+                let usage = try await usageTask
+                let planName = await organizationTask?.planName
                 UsageSnapshotCache.save(usage, planName: planName)
 
                 var entries = [UsageEntry.from(response: usage, planName: planName, date: Date(), isStale: false)]

@@ -32,6 +32,10 @@ public enum UsageAPIClient {
         var request = URLRequest(url: baseURL.appendingPathComponent(path))
         request.setValue(cookieHeader, forHTTPHeaderField: "Cookie")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        // The default 60s timeout can outlast the widget extension's background execution
+        // budget on a slow connection (e.g. a locked phone on cellular), so the process gets
+        // killed before it ever reaches the caller's catch-and-fall-back-to-cache logic.
+        request.timeoutInterval = 10
         return request
     }
 
