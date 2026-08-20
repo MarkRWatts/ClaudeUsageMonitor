@@ -41,6 +41,14 @@ struct UsageDashboardView: View {
                     Text("Updated \(lastUpdated, style: .relative) ago")
                 }
             }
+
+            Section {
+                NavigationLink {
+                    HistoryView(organizationId: organizationId)
+                } label: {
+                    Label("History", systemImage: "chart.bar.xaxis")
+                }
+            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Claude Usage")

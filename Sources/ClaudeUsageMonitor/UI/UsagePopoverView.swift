@@ -5,6 +5,10 @@ struct UsagePopoverView: View {
     @ObservedObject var store: UsageStore
     let onOpenSettings: () -> Void
 
+    @StateObject private var history = UsageHistoryViewModel()
+
+    private let sparklineWindowCount = 10
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
@@ -27,10 +31,19 @@ struct UsagePopoverView: View {
                 .foregroundColor(.secondary)
             }
 
-            UsageBarRow(
-                title: "5-Hour Session",
-                percent: store.fiveHourPercent,
-                subtitle: UsageFormatting.resetsSubtitle(store.fiveHourResetsAt))
+            VStack(alignment: .leading, spacing: 6) {
+                UsageBarRow(
+                    title: "5-Hour Session",
+                    percent: store.fiveHourPercent,
+                    subtitle: UsageFormatting.resetsSubtitle(store.fiveHourResetsAt))
+
+                if !recentSessions.isEmpty {
+                    UsageSparkline(windows: recentSessions)
+                    Text("Last \(recentSessions.count) sessions")
+                        .font(.system(size: 9))
+                        .foregroundColor(.secondary)
+                }
+            }
 
             UsageBarRow(
                 title: "Weekly (All Models)",
@@ -50,5 +63,22 @@ struct UsagePopoverView: View {
         }
         .padding(16)
         .frame(width: 260)
+        .task { await loadHistory() }
+        // `lastUpdated` moving means a refresh just landed and was recorded, which is exactly
+        // when the sparkline has something new to show.
+        .onChange(of: store.lastUpdated) { _ in
+            Task { await loadHistory() }
+        }
+    }
+
+    /// The most recent windows from the current plan only — a sparkline is too small to carry
+    /// the caveat that bars either side of a plan change measure against different limits.
+    private var recentSessions: [HistoryWindow] {
+        history.summary.groupedWindows(.fiveHour, limit: sparklineWindowCount).last?.windows ?? []
+    }
+
+    private func loadHistory() async {
+        guard let organizationId = CredentialStore.load()?.organizationId else { return }
+        await history.load(organizationId: organizationId, sampleWindow: nil)
     }
 }

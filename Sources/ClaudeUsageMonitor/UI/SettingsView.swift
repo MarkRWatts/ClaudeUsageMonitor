@@ -10,6 +10,7 @@ struct SettingsView: View {
     let onSignOut: () -> Void
     let onQuit: () -> Void
     let onClose: () -> Void
+    let onOpenHistory: () -> Void
 
     @State private var launchAtLogin: Bool = SMAppService.mainApp.status == .enabled
     @State private var launchAtLoginError: String?
@@ -60,6 +61,8 @@ struct SettingsView: View {
                 .labelsHidden()
                 .padding(.vertical, 4)
             }
+
+            Button("Usage History…", action: onOpenHistory)
 
             Toggle("Launch at Login", isOn: $launchAtLogin)
                 .onChange(of: launchAtLogin) { newValue in

@@ -11,13 +11,14 @@ limits at a glance.
   the ring alone, ring + percentage, percentage alone, or percentage stacked over the 5-hour
   reset time (with or without the ring).
 - Click the icon for a breakdown of all three limits: the 5-hour session limit, the weekly
-  all-model limit, and usage credits.
+  all-model limit, and usage credits, with a sparkline of your recent session peaks under the
+  5-hour bar.
 - A gear icon in that popover opens Settings: account details, current limits, the menu bar
-  display style, a Launch at Login toggle, Sign Out, and Quit.
+  display style, a Launch at Login toggle, a Usage History window, Sign Out, and Quit.
 
 **iOS**
 - The app mirrors the same breakdown (5-hour session, weekly, usage credits) with pull-to-
-  refresh, and a Settings screen for account details and Sign Out.
+  refresh, a History screen, and a Settings screen for account details and Sign Out.
 - A Home Screen widget (small/medium) and Lock Screen widgets (circular/inline/rectangular)
   show the same numbers without opening the app.
 
@@ -59,8 +60,12 @@ history is segmented into *epochs*, detected on the organization's plan capabili
 windows open at a change are flagged as truncated. Utilization is not comparable across an epoch
 boundary; `spend`, being real currency, is.
 
-There's no UI for any of this yet — the recorder ships first so data accumulates while the
-charts get built.
+Both apps chart it: peak-per-window bars for 5-hour sessions and weeks, and a 48-hour timeline
+of raw samples. Charts are drawn one epoch at a time and averages are computed within an epoch,
+so a plan change never averages two plans into one meaningless number. Bars that are still
+running, were only partly recorded, or were cut short by a plan change are faded — their peaks
+can't be read as final. macOS puts this in a Usage History window off Settings; iOS in a History
+screen off the dashboard. Both offer Clear History.
 
 ## Building
 
@@ -108,3 +113,7 @@ To add the widget: long-press the Home Screen, tap the `+` in the top corner, an
   and settings screens, and `BGAppRefreshTask` scheduling.
 - `Sources/ClaudeUsageWidget/` — the WidgetKit extension: `TimelineProvider` and the Home
   Screen / Lock Screen widget views.
+- `Sources/Shared/` — SwiftUI compiled into both app targets: the history charts (Swift Charts
+  bar, timeline and sparkline views) and the loader behind them. Small views like `UsageBarRow`
+  stay duplicated per platform, where each app styles them to its own conventions; the charts
+  are identical on both and too big to keep in two places.

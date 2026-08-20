@@ -5,6 +5,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let store = UsageStore()
     private let loginController = LoginWindowController()
     private let settingsWindowController = SettingsWindowController()
+    private let historyWindowController = HistoryWindowController()
     private var statusItemController: StatusItemController?
 
     private var foregroundTimer: Timer?
@@ -71,6 +72,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             },
             onQuit: {
                 NSApp.terminate(nil)
+            },
+            onOpenHistory: { [weak self] in
+                guard let organizationId = CredentialStore.load()?.organizationId else { return }
+                self?.historyWindowController.show(organizationId: organizationId)
             })
     }
 

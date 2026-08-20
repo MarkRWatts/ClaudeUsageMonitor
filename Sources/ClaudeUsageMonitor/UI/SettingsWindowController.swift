@@ -7,7 +7,7 @@ final class SettingsWindowController {
 
     func show(
         store: UsageStore, credential: StoredCredential?, onSignOut: @escaping () -> Void,
-        onQuit: @escaping () -> Void
+        onQuit: @escaping () -> Void, onOpenHistory: @escaping () -> Void
     ) {
         let window: NSWindow
         if let existing = self.window {
@@ -37,7 +37,8 @@ final class SettingsWindowController {
                 onQuit: onQuit,
                 onClose: { [weak self] in
                     self?.window?.close()
-                }))
+                },
+                onOpenHistory: onOpenHistory))
 
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
