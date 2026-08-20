@@ -41,6 +41,27 @@ The networking, models, credential storage, and login logic live in a local Swif
 `Packages/ClaudeUsageKit`, shared by all three targets (mac app, iOS app, widget extension) —
 see [Project layout](#project-layout) below.
 
+## Usage history
+
+The usage endpoint reports only the current numbers — there's no history in it — so the apps
+record their own. Every poll (the mac app's timer, the iOS app's foreground poll and background
+refresh, and the widget's own timeline fetches) appends a sample and updates a per-window
+aggregate under `~/Library/Application Support/ClaudeUsageMonitor/UsageHistory/` on macOS and the
+App Group container on iOS, keyed by organization.
+
+Windows are identified by their `resets_at`, and utilization only climbs until a reset, so the
+peak across however many samples got caught summarises a window well even when coverage was
+patchy. Full-resolution samples are kept for a week; the window aggregates are kept indefinitely.
+
+Plan changes reset every limit, which in the raw numbers is indistinguishable from a window
+rolling over normally — except the new readings are measured against a different limit. So
+history is segmented into *epochs*, detected on the organization's plan capabilities, and the
+windows open at a change are flagged as truncated. Utilization is not comparable across an epoch
+boundary; `spend`, being real currency, is.
+
+There's no UI for any of this yet — the recorder ships first so data accumulates while the
+charts get built.
+
 ## Building
 
 Requires Xcode (full IDE, not just Command Line Tools) and [XcodeGen](https://github.com/yonaskolb/XcodeGen):
@@ -79,7 +100,8 @@ To add the widget: long-press the Home Screen, tap the `+` in the top corner, an
 - `Packages/ClaudeUsageKit/` — shared Swift Package: usage API client and response models,
   Keychain-backed credential storage (with optional App Group access group for cross-process
   sharing), the login cookie → credential logic, the `UsageStore` observable state, formatting
-  helpers, and the widget's App-Group-backed usage snapshot cache.
+  helpers, the widget's App-Group-backed usage snapshot cache, and the usage history recorder
+  (see [Usage history](#usage-history)).
 - `Sources/ClaudeUsageMonitor/` — macOS app: login window (`WKWebView`), the custom-drawn ring
   icon and `NSStatusItem` controller, and SwiftUI views for the popover and settings window.
 - `Sources/ClaudeUsageMonitorIOS/` — iOS app: login sheet (`WKWebView`), the usage dashboard

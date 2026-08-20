@@ -103,11 +103,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         do {
             let usage = try await UsageAPIClient.fetchUsage(credential)
             await MainActor.run { store.apply(usage) }
-            if let organization = try? await UsageAPIClient.fetchOrganization(
+            let organization = try? await UsageAPIClient.fetchOrganization(
                 cookieHeader: credential.cookieHeader)
-            {
+            if let organization {
                 await MainActor.run { store.planName = organization.planName }
             }
+            UsageHistoryRecorder.record(
+                usage: usage, organization: organization,
+                organizationId: credential.organizationId, performMaintenance: true)
         } catch UsageAPIError.unauthorized {
             CredentialStore.clear()
             await MainActor.run {

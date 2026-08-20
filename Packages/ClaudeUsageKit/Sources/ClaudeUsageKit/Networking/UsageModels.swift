@@ -27,6 +27,18 @@ public struct Organization: Codable {
         "claude_enterprise": "Enterprise",
     ]
 
+    /// The subset of `capabilities` that identifies the plan, sorted for stable comparison.
+    ///
+    /// The full array also carries unrelated feature flags, which come and go on Anthropic's
+    /// own schedule — comparing all of them would read a flag flip as a plan change. Shares the
+    /// reverse-engineered mapping above with `planName`, and shares its limitation: a brand new
+    /// tier whose capability string isn't recognised here reads as no plan at all.
+    public var planCapabilities: [String] {
+        capabilities
+            .filter { Self.planCapabilityNames[$0] != nil || $0.hasPrefix("claude_max_") }
+            .sorted()
+    }
+
     public var planName: String? {
         for capability in capabilities {
             if let name = Self.planCapabilityNames[capability] {
@@ -52,9 +64,11 @@ public struct MoneyAmount: Codable {
         case exponent
     }
 
+    /// e.g. 2000 minor units / 10^2 exponent -> 20.0
+    public var value: Double { Double(amountMinor) / pow(10, Double(exponent)) }
+
     /// e.g. 2000 minor units / 10^2 exponent, "GBP" -> "£20.00"
     public var formatted: String {
-        let value = Double(amountMinor) / pow(10, Double(exponent))
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = currency

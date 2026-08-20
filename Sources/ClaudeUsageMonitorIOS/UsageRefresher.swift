@@ -27,6 +27,9 @@ enum UsageRefresher {
             // widget actually shows have moved.
             let previousSignature = UsageSnapshotCache.load().map { summary($0.response, planName: $0.planName) }
             UsageSnapshotCache.save(usage, planName: planName)
+            UsageHistoryRecorder.record(
+                usage: usage, organization: organization,
+                organizationId: credential.organizationId, performMaintenance: true)
             if let store {
                 await MainActor.run {
                     store.apply(usage)

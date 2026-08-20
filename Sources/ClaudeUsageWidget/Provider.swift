@@ -33,8 +33,15 @@ struct Provider: TimelineProvider {
                 async let organizationTask = try? UsageAPIClient.fetchOrganization(
                     cookieHeader: credential.cookieHeader)
                 let usage = try await usageTask
-                let planName = await organizationTask?.planName
+                let organization = await organizationTask
+                let planName = organization?.planName
                 UsageSnapshotCache.save(usage, planName: planName)
+                // While the phone sits idle this extension is often the only process polling,
+                // so it records history too. No maintenance pass — its execution budget is far
+                // too tight to be rewriting log files.
+                UsageHistoryRecorder.record(
+                    usage: usage, organization: organization,
+                    organizationId: credential.organizationId)
                 completion(.from(response: usage, planName: planName, date: Date(), isStale: false))
             } catch {
                 DebugLog.write("Widget Provider.getSnapshot failed: \(error)")
@@ -55,8 +62,15 @@ struct Provider: TimelineProvider {
                 async let organizationTask = try? UsageAPIClient.fetchOrganization(
                     cookieHeader: credential.cookieHeader)
                 let usage = try await usageTask
-                let planName = await organizationTask?.planName
+                let organization = await organizationTask
+                let planName = organization?.planName
                 UsageSnapshotCache.save(usage, planName: planName)
+                // While the phone sits idle this extension is often the only process polling,
+                // so it records history too. No maintenance pass — its execution budget is far
+                // too tight to be rewriting log files.
+                UsageHistoryRecorder.record(
+                    usage: usage, organization: organization,
+                    organizationId: credential.organizationId)
 
                 var entries = [UsageEntry.from(response: usage, planName: planName, date: Date(), isStale: false)]
                 var nextReload = Date().addingTimeInterval(refreshInterval)
