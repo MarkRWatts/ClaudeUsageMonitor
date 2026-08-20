@@ -32,16 +32,20 @@ public enum UsageHistoryRecorder {
                 return UsageHistoryStore.Mutation()
             }
 
+            let fiveHourResetsAt = windowIdentity(usage.fiveHour?.resetsAt)
+            let sevenDayResetsAt = windowIdentity(usage.sevenDay?.resetsAt)
+
             var mutation = UsageHistoryStore.Mutation()
             mutation.closedWindows = closeFinishedWindows(
-                &state, usage: usage, planChanged: planChanged)
+                &state, fiveHourResetsAt: fiveHourResetsAt, sevenDayResetsAt: sevenDayResetsAt,
+                planChanged: planChanged)
 
-            if let resetsAt = usage.fiveHour?.resetsAt {
+            if let resetsAt = fiveHourResetsAt {
                 touchWindow(
                     &state, kind: .fiveHour, resetsAt: resetsAt,
                     utilization: usage.fiveHour?.utilization ?? 0, epochId: epochId, now: now)
             }
-            if let resetsAt = usage.sevenDay?.resetsAt {
+            if let resetsAt = sevenDayResetsAt {
                 touchWindow(
                     &state, kind: .sevenDay, resetsAt: resetsAt,
                     utilization: usage.sevenDay?.utilization ?? 0, epochId: epochId, now: now)
@@ -115,15 +119,28 @@ public enum UsageHistoryRecorder {
 
     // MARK: - Windows
 
+    /// A window's `resets_at` truncated to whole seconds, which is the granularity everything
+    /// downstream agrees on.
+    ///
+    /// The API reports sub-second precision but the ISO-8601 encoding these files use drops it,
+    /// so an open window reloaded from disk would never compare equal to the same window still
+    /// being reported — closing and reopening it on every single poll, and resetting its
+    /// accumulated peak and sample count each time.
+    private static func windowIdentity(_ date: Date?) -> Date? {
+        date.map { Date(timeIntervalSince1970: $0.timeIntervalSince1970.rounded(.down)) }
+    }
+
     /// Closes every open window the incoming poll has moved past — a different `resets_at`, no
     /// active window at all, or a plan change, which ends all of them at once.
     private static func closeFinishedWindows(
-        _ state: inout UsageHistoryStore.State, usage: UsageResponse, planChanged: Bool
+        _ state: inout UsageHistoryStore.State,
+        fiveHourResetsAt: Date?,
+        sevenDayResetsAt: Date?,
+        planChanged: Bool
     ) -> [UsageWindowRecord] {
         var closed: [UsageWindowRecord] = []
         state.openWindows.removeAll { window in
-            let incoming: Date? =
-                window.kind == .fiveHour ? usage.fiveHour?.resetsAt : usage.sevenDay?.resetsAt
+            let incoming = window.kind == .fiveHour ? fiveHourResetsAt : sevenDayResetsAt
             guard planChanged || incoming != window.resetsAt else { return false }
             var record = window
             if planChanged { record.truncatedByPlanChange = true }

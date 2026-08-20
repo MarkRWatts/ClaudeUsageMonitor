@@ -50,9 +50,11 @@ refresh, and the widget's own timeline fetches) appends a sample and updates a p
 aggregate under `~/Library/Application Support/ClaudeUsageMonitor/UsageHistory/` on macOS and the
 App Group container on iOS, keyed by organization.
 
-Windows are identified by their `resets_at`, and utilization only climbs until a reset, so the
-peak across however many samples got caught summarises a window well even when coverage was
-patchy. Full-resolution samples are kept for a week; the window aggregates are kept indefinitely.
+Windows are identified by their `resets_at` (truncated to whole seconds — the API reports
+sub-second precision that the stored form drops, and an open window has to stay recognisable
+across a save and reload). Utilization only climbs until a reset, so the peak across however
+many samples got caught summarises a window well even when coverage was patchy. Full-resolution
+samples are kept for a week; the window aggregates are kept indefinitely.
 
 Plan changes reset every limit, which in the raw numbers is indistinguishable from a window
 rolling over normally — except the new readings are measured against a different limit. So
