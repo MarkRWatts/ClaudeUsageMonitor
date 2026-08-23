@@ -7,6 +7,8 @@ struct UsageEntry: TimelineEntry {
     let fiveHourResetsAt: Date?
     let sevenDayPercent: Double
     let sevenDayResetsAt: Date?
+    /// `nil` when the account's plan doesn't meter Fable separately — the row is hidden.
+    let fableWeeklyPercent: Double?
     let spendPercent: Double
     let spendUsedFormatted: String
     let spendLimitFormatted: String
@@ -23,6 +25,7 @@ struct UsageEntry: TimelineEntry {
             fiveHourResetsAt: response.fiveHour?.resetsAt,
             sevenDayPercent: response.sevenDay?.utilization ?? 0,
             sevenDayResetsAt: response.sevenDay?.resetsAt,
+            fableWeeklyPercent: response.fableWeekly?.utilization,
             spendPercent: response.spend?.percent ?? 0,
             spendUsedFormatted: response.spend?.used?.formatted ?? "—",
             spendLimitFormatted: response.spend?.limit?.formatted ?? "—",
@@ -33,12 +36,13 @@ struct UsageEntry: TimelineEntry {
 
     static let signedOut = UsageEntry(
         date: Date(), fiveHourPercent: 0, fiveHourResetsAt: nil, sevenDayPercent: 0,
-        sevenDayResetsAt: nil, spendPercent: 0, spendUsedFormatted: "—",
-        spendLimitFormatted: "—", planName: nil, isSignedIn: false, isStale: false)
+        sevenDayResetsAt: nil, fableWeeklyPercent: nil, spendPercent: 0,
+        spendUsedFormatted: "—", spendLimitFormatted: "—", planName: nil, isSignedIn: false,
+        isStale: false)
 
     static let placeholder = UsageEntry(
         date: Date(), fiveHourPercent: 42, fiveHourResetsAt: Date().addingTimeInterval(3600),
         sevenDayPercent: 61, sevenDayResetsAt: Date().addingTimeInterval(86400 * 3),
-        spendPercent: 18, spendUsedFormatted: "$9.00", spendLimitFormatted: "$50.00",
-        planName: "Max", isSignedIn: true, isStale: false)
+        fableWeeklyPercent: 27, spendPercent: 18, spendUsedFormatted: "$9.00",
+        spendLimitFormatted: "$50.00", planName: "Max", isSignedIn: true, isStale: false)
 }

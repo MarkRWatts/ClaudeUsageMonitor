@@ -50,6 +50,13 @@ struct UsagePopoverView: View {
                 percent: store.sevenDayPercent,
                 subtitle: UsageFormatting.resetsSubtitle(store.sevenDayResetsAt))
 
+            if let fablePercent = store.fableWeeklyPercent {
+                UsageBarRow(
+                    title: "Weekly (Fable)",
+                    percent: fablePercent,
+                    subtitle: UsageFormatting.resetsSubtitle(store.fableWeeklyResetsAt))
+            }
+
             UsageBarRow(
                 title: "Usage Credits",
                 percent: store.spendPercent,

@@ -102,14 +102,81 @@ public struct SpendUsage: Codable {
     public let limit: MoneyAmount?
 }
 
+/// One entry of the `limits` array, the generalized form the endpoint moved to with the
+/// Claude 5 launch. Model-scoped weekly limits (Fable's, notably) only appear here — their
+/// old top-level `seven_day_<model>` spellings now come back null.
+///
+/// Every field is decoded tolerantly: this array is where Anthropic adds new limit kinds
+/// first, and one unrecognised entry must not sink the whole usage response.
+public struct UsageLimitEntry: Codable {
+    public struct Scope: Codable {
+        public struct Model: Codable {
+            public let displayName: String?
+
+            enum CodingKeys: String, CodingKey {
+                case displayName = "display_name"
+            }
+        }
+
+        public let model: Model?
+    }
+
+    public let kind: String?
+    public let percent: Double?
+    public let resetsAt: Date?
+    public let scope: Scope?
+
+    enum CodingKeys: String, CodingKey {
+        case kind, percent, scope
+        case resetsAt = "resets_at"
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        kind = (try? container.decodeIfPresent(String.self, forKey: .kind)) ?? nil
+        percent = (try? container.decodeIfPresent(Double.self, forKey: .percent)) ?? nil
+        scope = (try? container.decodeIfPresent(Scope.self, forKey: .scope)) ?? nil
+        // `resets_at` has been observed as an ISO string, epoch seconds, and epoch
+        // milliseconds — try the surrounding decoder's date strategy first, then epoch.
+        if let date = (try? container.decodeIfPresent(Date.self, forKey: .resetsAt)) ?? nil {
+            resetsAt = date
+        } else if let epoch = (try? container.decodeIfPresent(Double.self, forKey: .resetsAt))
+            ?? nil
+        {
+            resetsAt = Date(timeIntervalSince1970: epoch > 1e12 ? epoch / 1000 : epoch)
+        } else {
+            resetsAt = nil
+        }
+    }
+}
+
 public struct UsageResponse: Codable {
     public let fiveHour: FiveHourUsage?
     public let sevenDay: SevenDayUsage?
     public let spend: SpendUsage?
+    public let limits: [UsageLimitEntry]?
+    /// Pre-`limits` spelling of Fable's scoped weekly window; null on current payloads.
+    public let sevenDayFable: SevenDayUsage?
 
     enum CodingKeys: String, CodingKey {
         case fiveHour = "five_hour"
         case sevenDay = "seven_day"
+        case sevenDayFable = "seven_day_fable"
         case spend
+        case limits
+    }
+
+    /// The Fable model's scoped weekly window, or `nil` when the account's plan doesn't
+    /// meter Fable separately. Prefers the `limits` array, falling back to the legacy
+    /// top-level field for payloads (or cached snapshots) that predate it.
+    public var fableWeekly: SevenDayUsage? {
+        if let entry = limits?.first(where: { entry in
+            entry.kind == "weekly_scoped"
+                && entry.scope?.model?.displayName?.range(
+                    of: "fable", options: .caseInsensitive) != nil
+        }), let percent = entry.percent {
+            return SevenDayUsage(utilization: percent, resetsAt: entry.resetsAt)
+        }
+        return sevenDayFable
     }
 }

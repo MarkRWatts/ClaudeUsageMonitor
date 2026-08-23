@@ -120,6 +120,9 @@ public struct UsageHistorySummary {
             case .sevenDay:
                 percent = sample.sevenDayPercent
                 resetsAt = sample.sevenDayResetsAt
+            case .sevenDayFable:
+                percent = sample.fableWeeklyPercent
+                resetsAt = sample.fableWeeklyResetsAt
             }
             guard let percent, let resetsAt else { return nil }
             return HistoryTimelinePoint(

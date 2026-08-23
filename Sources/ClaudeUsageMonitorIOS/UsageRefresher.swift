@@ -61,6 +61,7 @@ enum UsageRefresher {
         return
             "\(response.fiveHour?.utilization ?? -1)|\(fiveHourResets ?? -1)|"
             + "\(response.sevenDay?.utilization ?? -1)|\(sevenDayResets ?? -1)|"
+            + "\(response.fableWeekly?.utilization ?? -1)|"
             + "\(response.spend?.percent ?? -1)|\(planName ?? "")"
     }
 }

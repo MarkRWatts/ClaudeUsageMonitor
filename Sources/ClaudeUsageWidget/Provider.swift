@@ -83,6 +83,7 @@ struct Provider: TimelineProvider {
                             fiveHourResetsAt: nil,
                             sevenDayPercent: usage.sevenDay?.utilization ?? 0,
                             sevenDayResetsAt: usage.sevenDay?.resetsAt,
+                            fableWeeklyPercent: usage.fableWeekly?.utilization,
                             spendPercent: usage.spend?.percent ?? 0,
                             spendUsedFormatted: usage.spend?.used?.formatted ?? "—",
                             spendLimitFormatted: usage.spend?.limit?.formatted ?? "—",

@@ -28,6 +28,7 @@ struct HistoryView: View {
             } else {
                 windowSection(.fiveHour)
                 windowSection(.sevenDay)
+                windowSection(.sevenDayFable)
                 timelineSection
                 clearSection
             }

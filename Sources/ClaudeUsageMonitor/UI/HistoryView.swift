@@ -27,6 +27,7 @@ struct HistoryView: View {
             } else {
                 windowGroup(.fiveHour)
                 windowGroup(.sevenDay)
+                windowGroup(.sevenDayFable)
                 timelineGroup
             }
 

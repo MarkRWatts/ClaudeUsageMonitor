@@ -32,13 +32,15 @@ public enum UsageHistoryRecorder {
                 return UsageHistoryStore.Mutation()
             }
 
+            let fableWeekly = usage.fableWeekly
             let fiveHourResetsAt = windowIdentity(usage.fiveHour?.resetsAt)
             let sevenDayResetsAt = windowIdentity(usage.sevenDay?.resetsAt)
+            let fableResetsAt = windowIdentity(fableWeekly?.resetsAt)
 
             var mutation = UsageHistoryStore.Mutation()
             mutation.closedWindows = closeFinishedWindows(
                 &state, fiveHourResetsAt: fiveHourResetsAt, sevenDayResetsAt: sevenDayResetsAt,
-                planChanged: planChanged)
+                fableResetsAt: fableResetsAt, planChanged: planChanged)
 
             if let resetsAt = fiveHourResetsAt {
                 touchWindow(
@@ -50,6 +52,11 @@ public enum UsageHistoryRecorder {
                     &state, kind: .sevenDay, resetsAt: resetsAt,
                     utilization: usage.sevenDay?.utilization ?? 0, epochId: epochId, now: now)
             }
+            if let resetsAt = fableResetsAt {
+                touchWindow(
+                    &state, kind: .sevenDayFable, resetsAt: resetsAt,
+                    utilization: fableWeekly?.utilization ?? 0, epochId: epochId, now: now)
+            }
 
             mutation.sample = UsageSample(
                 recordedAt: now,
@@ -58,6 +65,8 @@ public enum UsageHistoryRecorder {
                 fiveHourResetsAt: usage.fiveHour?.resetsAt,
                 sevenDayPercent: usage.sevenDay?.utilization,
                 sevenDayResetsAt: usage.sevenDay?.resetsAt,
+                fableWeeklyPercent: fableWeekly?.utilization,
+                fableWeeklyResetsAt: fableWeekly?.resetsAt,
                 spendPercent: usage.spend?.percent,
                 spendUsed: usage.spend?.used,
                 spendLimit: usage.spend?.limit)
@@ -136,11 +145,17 @@ public enum UsageHistoryRecorder {
         _ state: inout UsageHistoryStore.State,
         fiveHourResetsAt: Date?,
         sevenDayResetsAt: Date?,
+        fableResetsAt: Date?,
         planChanged: Bool
     ) -> [UsageWindowRecord] {
         var closed: [UsageWindowRecord] = []
         state.openWindows.removeAll { window in
-            let incoming = window.kind == .fiveHour ? fiveHourResetsAt : sevenDayResetsAt
+            let incoming: Date?
+            switch window.kind {
+            case .fiveHour: incoming = fiveHourResetsAt
+            case .sevenDay: incoming = sevenDayResetsAt
+            case .sevenDayFable: incoming = fableResetsAt
+            }
             guard planChanged || incoming != window.resetsAt else { return false }
             var record = window
             if planChanged { record.truncatedByPlanChange = true }

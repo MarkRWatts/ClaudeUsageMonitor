@@ -86,6 +86,9 @@ private struct MediumUsageView: View {
             VStack(alignment: .leading, spacing: 8) {
                 if entry.isSignedIn {
                     MiniBarRow(title: "Weekly", percent: entry.sevenDayPercent)
+                    if let fablePercent = entry.fableWeeklyPercent {
+                        MiniBarRow(title: "Fable", percent: fablePercent)
+                    }
                     MiniBarRow(title: "Credits", percent: entry.spendPercent)
                     Text(UsageFormatting.resetsSubtitle(entry.fiveHourResetsAt))
                         .font(.system(size: 9))

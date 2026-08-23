@@ -10,15 +10,16 @@ limits at a glance.
   5-hour session usage climbs from 0% to 100%. Settings lets you switch the display between
   the ring alone, ring + percentage, percentage alone, or percentage stacked over the 5-hour
   reset time (with or without the ring).
-- Click the icon for a breakdown of all three limits: the 5-hour session limit, the weekly
-  all-model limit, and usage credits, with a sparkline of your recent session peaks under the
-  5-hour bar.
+- Click the icon for a breakdown of your limits: the 5-hour session limit, the weekly
+  all-model limit, the weekly Fable limit (when your plan meters Fable separately), and usage
+  credits, with a sparkline of your recent session peaks under the 5-hour bar.
 - A gear icon in that popover opens Settings: account details, current limits, the menu bar
   display style, a Launch at Login toggle, a Usage History window, Sign Out, and Quit.
 
 **iOS**
-- The app mirrors the same breakdown (5-hour session, weekly, usage credits) with pull-to-
-  refresh, a History screen, and a Settings screen for account details and Sign Out.
+- The app mirrors the same breakdown (5-hour session, weekly, weekly Fable, usage credits)
+  with pull-to-refresh, a History screen, and a Settings screen for account details and Sign
+  Out.
 - A Home Screen widget (small/medium) and Lock Screen widgets (circular/inline/rectangular)
   show the same numbers without opening the app.
 

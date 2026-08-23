@@ -3,11 +3,12 @@ import Foundation
 public enum UsageWindowKind: String, Codable {
     case fiveHour
     case sevenDay
+    case sevenDayFable
 
     public var duration: TimeInterval {
         switch self {
         case .fiveHour: return 5 * 60 * 60
-        case .sevenDay: return 7 * 24 * 60 * 60
+        case .sevenDay, .sevenDayFable: return 7 * 24 * 60 * 60
         }
     }
 
@@ -15,6 +16,7 @@ public enum UsageWindowKind: String, Codable {
         switch self {
         case .fiveHour: return "5-Hour Session"
         case .sevenDay: return "Weekly (All Models)"
+        case .sevenDayFable: return "Weekly (Fable)"
         }
     }
 }
@@ -32,6 +34,8 @@ public struct UsageSample: Codable {
     public let fiveHourResetsAt: Date?
     public let sevenDayPercent: Double?
     public let sevenDayResetsAt: Date?
+    public let fableWeeklyPercent: Double?
+    public let fableWeeklyResetsAt: Date?
     public let spendPercent: Double?
     public let spendUsed: MoneyAmount?
     public let spendLimit: MoneyAmount?
@@ -43,6 +47,8 @@ public struct UsageSample: Codable {
         fiveHourResetsAt: Date?,
         sevenDayPercent: Double?,
         sevenDayResetsAt: Date?,
+        fableWeeklyPercent: Double? = nil,
+        fableWeeklyResetsAt: Date? = nil,
         spendPercent: Double?,
         spendUsed: MoneyAmount?,
         spendLimit: MoneyAmount?
@@ -53,6 +59,8 @@ public struct UsageSample: Codable {
         self.fiveHourResetsAt = fiveHourResetsAt
         self.sevenDayPercent = sevenDayPercent
         self.sevenDayResetsAt = sevenDayResetsAt
+        self.fableWeeklyPercent = fableWeeklyPercent
+        self.fableWeeklyResetsAt = fableWeeklyResetsAt
         self.spendPercent = spendPercent
         self.spendUsed = spendUsed
         self.spendLimit = spendLimit
