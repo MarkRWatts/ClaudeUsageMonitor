@@ -5,3 +5,6 @@ ClaudeUsageMonitor.xcodeproj/
 DerivedData/
 Packages/*/.build/
 Packages/*/.swiftpm/
+
+# Local build output.
+build/
